@@ -35,6 +35,11 @@ class Collaborator extends Model
         'state',
     ];
 
+    public function setCpfAttribute($value)
+    {
+        $this->attributes['cpf'] = preg_replace('/[^0-9]/', '', $value);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
