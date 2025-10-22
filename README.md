@@ -1,5 +1,7 @@
 ## Sistema de Gerenciamento de Colaboradores
 
+[![Coverage](https://codecov.io/gh/jarbasdossantos/convenia-senior-developer-test/branch/main/graph/badge.svg)](https://codecov.io/gh/jarbasdossantos/convenia-senior-developer-test)
+
 API REST desenvolvida em Laravel 12 para gerenciamento de colaboradores com autenticação via Laravel Sanctum.
 
 ## Funcionalidades
@@ -69,6 +71,7 @@ O projeto está configurado para usar SQLite por padrão. Crie o arquivo do banc
 
 ```bash
 touch database/database.sqlite
+touch database/testing.sqlite
 ```
 
 Para usar MySQL ou PostgreSQL, edite o arquivo `.env` e configure as variáveis `DB_*`.
@@ -153,6 +156,7 @@ Após iniciar a aplicação, acesse:
 - Soft deletes em colaboradores.
 - Idempotência no CSV (hash por linha).
 - Chunks para arquivos muito grandes.
+- Melhorar validações.
 
 ## Licença
 
