@@ -13,3 +13,8 @@ Route::get('docs', function () {
         'openapi_json' => url('api/documentation.json'),
     ]);
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::resource('collaborators', CollaboratorController::class);
+    Route::post('collaborators/import-csv', [CollaboratorController::class, 'importCsv']);
+});
