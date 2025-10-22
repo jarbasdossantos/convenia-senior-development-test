@@ -16,8 +16,8 @@ class StoreCollaboratorRequest extends FormRequest
     {
         return [
             'name' => ['required','string'],
-            'email' => ['required','email'],
-            'cpf' => ['required','string', new CpfValidationRule()],
+            'email' => ['required','email', 'unique:collaborators,email'],
+            'cpf' => ['required','string', new CpfValidationRule],
             'city' => ['required','string'],
             'state' => ['required','string','size:2'],
         ];
