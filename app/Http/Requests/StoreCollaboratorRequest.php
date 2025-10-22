@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\CpfValidationRule;
 
 class StoreCollaboratorRequest extends FormRequest
 {
@@ -16,7 +17,7 @@ class StoreCollaboratorRequest extends FormRequest
         return [
             'name' => ['required','string'],
             'email' => ['required','email'],
-            'cpf' => ['required','string'],
+            'cpf' => ['required','string', new CpfValidationRule()],
             'city' => ['required','string'],
             'state' => ['required','string','size:2'],
         ];
