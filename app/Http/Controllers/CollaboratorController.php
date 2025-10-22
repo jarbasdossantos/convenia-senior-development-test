@@ -7,7 +7,6 @@ use App\Http\Requests\StoreCollaboratorRequest;
 use App\Http\Requests\UpdateCollaboratorRequest;
 use App\Http\Requests\CollaboratorCsvUploadRequest;
 use App\Jobs\ProcessCollaboratorsCsvJob;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 
@@ -54,7 +53,14 @@ class CollaboratorController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $collaborators = Collaborator::where('user_id', $user->id)->orderBy('id', 'desc')->paginate(20);
+        $page = $request->get('page', 1);
+        $cacheKey = "collaborators_user_{$user->id}_page_{$page}";
+
+        $collaborators = cache()->remember($cacheKey, 300, function () use ($user) {
+            return Collaborator::where('user_id', $user->id)
+                ->orderBy('id', 'desc')
+                ->paginate(20);
+        });
 
         return response()->json($collaborators);
     }
@@ -127,8 +133,10 @@ class CollaboratorController extends Controller
     public function store(StoreCollaboratorRequest $request)
     {
         $data = $request->all();
-        $data['user_id'] = Auth::id();
-        $collaborator = Collaborator::create($data);
+        $data['user_id'] = $request->user()->id;
+        $collaborator = Collaborator::createOrFirst($data);
+
+        $this->clearCache($request->user()->id);
 
         return response()->json($collaborator, 201);
     }
@@ -183,6 +191,8 @@ class CollaboratorController extends Controller
         $data = $request->except('user_id');
         $collaborator->update($data);
 
+        $this->clearCache($collaborator->user_id);
+
         return response()->json($collaborator);
     }
 
@@ -218,7 +228,10 @@ class CollaboratorController extends Controller
     {
         Gate::authorize('delete', $collaborator);
 
+        $userId = $collaborator->user_id;
         $collaborator->delete();
+
+        $this->clearCache($userId);
 
         return response()->json([], 204);
     }
@@ -272,5 +285,13 @@ class CollaboratorController extends Controller
         }
 
         return response()->json(['message' => 'Processamento do arquivo CSV iniciado.'], 202);
+    }
+
+    private function clearCache(int $userId): void
+    {
+        for ($page = 1; $page <= 10; $page++) {
+            $cacheKey = "collaborators_user_{$userId}_page_{$page}";
+            cache()->forget($cacheKey);
+        }
     }
 }
