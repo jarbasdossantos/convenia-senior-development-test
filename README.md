@@ -1,6 +1,6 @@
 ## Sistema de Gerenciamento de Colaboradores
 
-[![Coverage](https://codecov.io/gh/jarbasdossantos/convenia-senior-developer-test/branch/main/graph/badge.svg)](https://codecov.io/gh/jarbasdossantos/convenia-senior-developer-test)
+[![codecov](https://codecov.io/github/jarbasdossantos/convenia-senior-development-test/graph/badge.svg?token=FKYFAXOOAT)](https://codecov.io/github/jarbasdossantos/convenia-senior-development-test)
 
 API REST desenvolvida em Laravel 12 para gerenciamento de colaboradores com autenticação via Laravel Sanctum.
 
