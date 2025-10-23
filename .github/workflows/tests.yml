@@ -1,44 +1,50 @@
-name: tests
+name: Tests
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - master
+      - "*.x"
   pull_request:
-    branches: [ main, master ]
+  schedule:
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: read
 
 jobs:
-  phpunit:
+  tests:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.2, 8.3, 8.4]
+
+    name: PHP ${{ matrix.php }}
+
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          coverage: xdebug
-          extensions: mbstring, openssl, pdo_sqlite
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          coverage: none
 
-      - name: Cache Composer
-        uses: actions/cache@v4
-        with:
-          path: ~/.composer/cache/files
-          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            composer-${{ runner.os }}-
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Install dependencies
-        run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Copy environment file
+        run: cp .env.example .env
 
-      - name: Prepare Laravel app key
-        run: |
-          cp .env.example .env
-          php artisan key:generate --ansi
+      - name: Generate app key
+        run: php artisan key:generate
 
-      - name: Run tests with coverage
-        run: vendor/bin/phpunit --coverage-clover coverage.xml
+      - name: Execute tests
+        run: php artisan test --coverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
